@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Full OMNIA validation battery. Requirements: Node >= 20, Python 3 with numpy, nibabel, pydicom, scipy,
+# Full femeIA.Co validation battery. Requirements: Node >= 20, Python 3 with numpy, nibabel, pydicom, scipy,
 # highdicom; native dcm2niix and dciodvfy (dicom3tools) on PATH; for the browser test a Chromium
 # (puppeteer-core + @sparticuz/chromium from devDependencies).
 # usage: tools/validate_all.sh <data_dir> <report_dir>

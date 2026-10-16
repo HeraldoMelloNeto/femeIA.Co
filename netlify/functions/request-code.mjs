@@ -21,9 +21,9 @@ export default async (req, context) => {
   const code = String(crypto.randomInt(0, 1e6)).padStart(6, '0');
   await st.setJSON(`code:${sha(email)}`, { h: hmac(key, `${email}:${code}`), exp: Date.now() + 10 * 60e3, tries: 0 });
   const pt = body.lang !== 'en';
-  await sendMail(email, pt ? 'Seu código de acesso ao OMNIA' : 'Your OMNIA access code',
-    pt ? `Seu código de acesso ao OMNIA é ${code}.\nEle vale por 10 minutos.\n\nAs imagens que você converte no OMNIA nunca saem do seu computador.`
-      : `Your OMNIA access code is ${code}.\nIt is valid for 10 minutes.\n\nThe images you convert with OMNIA never leave your computer.`);
+  await sendMail(email, pt ? 'Seu código de acesso à femeIA.Co' : 'Your femeIA.Co access code',
+    pt ? `Seu código de acesso à femeIA.Co é ${code}.\nEle vale por 10 minutos.\n\nAs imagens que você converte na femeIA.Co nunca saem do seu computador.`
+      : `Your femeIA.Co access code is ${code}.\nIt is valid for 10 minutes.\n\nThe images you convert with femeIA.Co never leave your computer.`);
   return json(200, { status: 'sent' });
 };
 

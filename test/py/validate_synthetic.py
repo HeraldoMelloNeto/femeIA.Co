@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Synthetic edge-case validation of OMNIA NIfTI -> DICOM (and back).
+"""Synthetic edge-case validation of femeIA.Co NIfTI -> DICOM (and back).
 
-Each case writes a NIfTI with known properties, converts it with OMNIA (Node engine, identical to the
+Each case writes a NIfTI with known properties, converts it with femeIA.Co (Node engine, identical to the
 browser worker) and checks:
   * expected outcome (lossless conversion, quantisation, or a refusal with a reason);
   * independent voxel check with pydicom + nibabel (dicom_vs_nifti.py);
@@ -14,7 +14,7 @@ import gzip, json, os, shutil, subprocess, sys, tempfile, zipfile, glob
 import numpy as np, nibabel as nib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-W = tempfile.mkdtemp(prefix='omnia_syn_')
+W = tempfile.mkdtemp(prefix='femeia_syn_')
 rng = np.random.default_rng(20261015)
 
 
@@ -53,7 +53,7 @@ def mk(data, A, **hdr):
     return img
 
 
-def omnia(nii, out, *extra):
+def femeia(nii, out, *extra):
     r = run(['node', os.path.join(ROOT, 'test/cli/nii2dcm.mjs'), nii, out, *extra])
     if r.returncode != 0:
         err = [l for l in r.stderr.splitlines() if 'Error' in l and ' at ' not in l]
@@ -94,7 +94,7 @@ def case(name, nii, expect='lossless', extra=(), quant=False, rt=True, dwi=None,
     out = os.path.join(W, 'out_' + name)
     args = list(extra) + (['--quantize'] if quant else [])
     if dwi: args += ['--bval', dwi[0], '--bvec', dwi[1]]
-    info, err = omnia(nii, out, *args)
+    info, err = femeia(nii, out, *args)
     rec = {'case': name, 'note': note, 'expect': expect}
     if expect == 'refuse':
         rec['ok'] = info is None
@@ -201,7 +201,7 @@ pd2 = save(mk(d4, A_dwi2), 'dwi_negdet')
 case('dwi_negdet', pd2, dwi=(os.path.join(W, 'dwi.bval'), os.path.join(W, 'dwi.bvec')), note='4D DWI, det<0 (FSL radiological)')
 
 # ---------------------------------------------------------------------------------------------
-# SEG: image + label map in one exam archive -> OMNIA exam pipeline (NIfTI->DICOM direction)
+# SEG: image + label map in one exam archive -> femeIA.Co exam pipeline (NIfTI->DICOM direction)
 img_data = phantom(sh)
 lab = np.zeros(sh, np.uint8); lab[10:30, 20:40, 5:20] = 1; lab[35:50, 30:60, 15:35] = 2; lab[5:9, 5:9, 2:4] = 7
 zp = os.path.join(W, 'seg_exam.zip')

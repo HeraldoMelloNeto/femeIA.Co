@@ -2,7 +2,8 @@
 
 ## 1.0.0 (2026-10-16)
 
-First public release.
+First public release of femeIA.Co, the rose edition of OMNIA 1.0.0 (Klaus Schumacher, MD): the same conversion
+engine and validation, renamed and restyled (Fraunces display type, rose and plum colour scheme, the ♀ reticle mark).
 
 - NIfTI → DICOM: classic CT Image and MR Image series (3D, 4D, DWI with b-values and gradient directions in the
   patient frame), DICOM SEG from label maps referencing the converted image series, exact 16-bit encoding with

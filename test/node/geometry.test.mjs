@@ -1,4 +1,4 @@
-// Geometry: every DICOM pixel centre written by OMNIA must land exactly on the NIfTI voxel it came from.
+// Geometry: every DICOM pixel centre written by femeIA.Co must land exactly on the NIfTI voxel it came from.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { planSlices, inv4, applyAffine, GeometryError } from '../../src/engine/geometry.js';

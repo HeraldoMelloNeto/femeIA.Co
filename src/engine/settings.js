@@ -2,7 +2,7 @@
 export const DEFAULT_SETTINGS = {
   direction: 'dcm2nii', // 'dcm2nii' | 'nii2dcm'
   anonymize: true,
-  pseudonymPrefix: 'OMNIA',
+  pseudonymPrefix: 'FEMEIA',
   dates: 'remove', // 'remove' | 'shift' | 'keep'
   retainPatientCharacteristics: true,
   keepDescriptions: true,

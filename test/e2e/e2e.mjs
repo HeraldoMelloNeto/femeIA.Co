@@ -28,7 +28,7 @@ await shot('01_gate');
 await page.type('#gateEmail', 'e2e-test@example.org');
 await page.click('#gateSend');
 await page.waitForFunction(() => !document.querySelector('#gate').open, { timeout: 15000 });
-await page.waitForFunction(() => window.__omnia && window.__omnia.engineReady, { timeout: 60000 });
+await page.waitForFunction(() => window.__femeia && window.__femeia.engineReady, { timeout: 60000 });
 await shot('02_ready');
 
 async function runBatch(name, files, setup) {
@@ -36,22 +36,22 @@ async function runBatch(name, files, setup) {
   if (setup) await setup();
   const input = await page.$('#pickFiles');
   await input.uploadFile(...files.map((f) => path.join(inDir, f)));
-  await page.waitForFunction((n) => window.__omnia.exams.length === n, {}, files.length);
+  await page.waitForFunction((n) => window.__femeia.exams.length === n, {}, files.length);
   await shot(`${name}_queued`);
   const t0 = Date.now();
   await page.click('#startBtn');
-  await page.waitForFunction(() => window.__omnia.running === true, { timeout: 10000 });
-  await page.waitForFunction(() => window.__omnia.running === false, { timeout: 1_800_000, polling: 1000 });
+  await page.waitForFunction(() => window.__femeia.running === true, { timeout: 10000 });
+  await page.waitForFunction(() => window.__femeia.running === false, { timeout: 1_800_000, polling: 1000 });
   const ms = Date.now() - t0;
   // open every exam's details for the screenshot
   await page.evaluate(() => { for (const b of document.querySelectorAll('.exam-actions button:first-child')) b.click(); });
   await shot(`${name}_done`);
-  const exams = await page.evaluate(() => window.__omnia.exams.map((e) => ({ name: e.name, status: e.status, error: e.error, result: e.result })));
+  const exams = await page.evaluate(() => window.__femeia.exams.map((e) => ({ name: e.name, status: e.status, error: e.error, result: e.result })));
   const dir = path.join(outDir, name);
   fs.mkdirSync(dir, { recursive: true });
   for (let i = 0; i < exams.length; i++) {
     const b64 = await page.evaluate(async (idx) => {
-      const ex = window.__omnia.exams[idx];
+      const ex = window.__femeia.exams[idx];
       if (!ex.blob) return null;
       const u8 = new Uint8Array(await ex.blob.arrayBuffer());
       let s = '';
@@ -62,7 +62,7 @@ async function runBatch(name, files, setup) {
   }
   for (const k of ['csv', 'json', 'map']) {
     const r = await page.evaluate(async (key) => {
-      const rep = window.__omnia.reports && window.__omnia.reports[key];
+      const rep = window.__femeia.reports && window.__femeia.reports[key];
       if (!rep) return null;
       return [rep[0], await rep[1].text()];
     }, k);

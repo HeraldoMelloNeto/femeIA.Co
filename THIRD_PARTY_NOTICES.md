@@ -1,8 +1,8 @@
 # Third-party notices
 
-OMNIA is licensed under the Apache License 2.0 (see `LICENSE`). It includes or depends on the following third-party software. Their licence texts are reproduced below.
+femeIA.Co is licensed under the Apache License 2.0 (see `LICENSE`). It includes or depends on the following third-party software. Their licence texts are reproduced below.
 
-| Component | Use in OMNIA | Licence |
+| Component | Use in femeIA.Co | Licence |
 |---|---|---|
 | dcm2niix (Chris Rorden et al.), WebAssembly build distributed as `@niivue/dcm2niix` | DICOM → NIfTI conversion in the browser | BSD-2-Clause (bundled decoders: OpenJPEG BSD-2-Clause, CharLS BSD-3-Clause, nifti headers public domain, NanoJPEG MIT, miniz public domain) |
 | libarchive.js (Nika Begiashvili) | RAR, 7z and TAR extraction in the browser | MIT |
@@ -11,7 +11,7 @@ OMNIA is licensed under the Apache License 2.0 (see `LICENSE`). It includes or d
 | fflate (Arjun Barrett) | gzip/deflate | MIT |
 | @noble/hashes (Paul Miller) | SHA-256 | MIT |
 | DICOM data dictionary, generated from pydicom | VR lookup | MIT (pydicom); dictionary content from DICOM PS3.6 (NEMA) |
-| Unbounded, Atkinson Hyperlegible, Atkinson Hyperlegible Mono (via Fontsource) | typefaces | SIL Open Font License 1.1 |
+| Fraunces, Atkinson Hyperlegible, Atkinson Hyperlegible Mono (via Fontsource) | typefaces | SIL Open Font License 1.1 |
 | @netlify/blobs | access-email storage (server function) | MIT |
 | nodemailer | access-code email (server function, optional) | MIT-0 |
 
@@ -371,10 +371,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
 
-## Unbounded (SIL OFL 1.1)
+## Fraunces (SIL OFL 1.1)
 
 ```
-Copyright 2022 The Unbounded Project Authors (https://github.com/googlefonts/unbounded)
+Copyright 2020 The Fraunces Project Authors (https://github.com/undercasetype/Fraunces)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

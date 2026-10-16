@@ -1,7 +1,7 @@
 // NIfTI -> DICOM: classic single-frame CT/MR Image Storage series (3D and 4D, incl. DWI)
 // and DICOM Segmentation (SEG, binary) for label maps.
 import { WDataset, writePart10, codeItem } from './dicom/write.js';
-import { newUID, IMPLEMENTATION_CLASS_UID, IMPLEMENTATION_VERSION_NAME, OMNIA_VERSION } from './uid.js';
+import { newUID, IMPLEMENTATION_CLASS_UID, IMPLEMENTATION_VERSION_NAME, FEMEIA_VERSION } from './uid.js';
 import { planSlices, dot, unit, cross } from './geometry.js';
 import { planEncoding } from './pixels.js';
 import { effectiveScaling } from './nifti.js';
@@ -79,7 +79,7 @@ function addPatientStudy(ds, id, defacedNote) {
     ds.set('PatientIdentityRemoved', 'YES', 'CS');
     const methods = id.methods.slice();
     if (defacedNote) methods.push(DEID_CODES.CLEAN_RECOGNIZABLE_VISUAL);
-    ds.set('DeidentificationMethod', `OMNIA ${OMNIA_VERSION}: PS3.15 Basic Profile` + (defacedNote ? ' + CT defacing' : ''), 'LO');
+    ds.set('DeidentificationMethod', `femeIA.Co ${FEMEIA_VERSION}: PS3.15 Basic Profile` + (defacedNote ? ' + CT defacing' : ''), 'LO');
     ds.seq('DeidentificationMethodCodeSequence', methods.map(([v, sch, m]) => codeItem(v, sch, m)));
   }
   ds.set('StudyInstanceUID', st.StudyInstanceUID, 'UI');
@@ -108,16 +108,16 @@ function contributingEquipment(meta, id) {
     items.push(it);
   }
   const me = new WDataset();
-  me.set('Manufacturer', 'OMNIA', 'LO');
-  me.set('ManufacturerModelName', 'OMNIA NIfTI-DICOM Converter', 'LO');
-  me.set('SoftwareVersions', OMNIA_VERSION, 'LO');
+  me.set('Manufacturer', 'femeIA.Co', 'LO');
+  me.set('ManufacturerModelName', 'femeIA.Co NIfTI-DICOM Converter', 'LO');
+  me.set('SoftwareVersions', FEMEIA_VERSION, 'LO');
   me.seq('PurposeOfReferenceCodeSequence', [codeItem('109102', 'DCM', 'Processing Equipment')]);
   items.push(me);
   if (id.anon) {
     const de = new WDataset();
-    de.set('Manufacturer', 'OMNIA', 'LO');
-    de.set('ManufacturerModelName', 'OMNIA NIfTI-DICOM Converter', 'LO');
-    de.set('SoftwareVersions', OMNIA_VERSION, 'LO');
+    de.set('Manufacturer', 'femeIA.Co', 'LO');
+    de.set('ManufacturerModelName', 'femeIA.Co NIfTI-DICOM Converter', 'LO');
+    de.set('SoftwareVersions', FEMEIA_VERSION, 'LO');
     de.seq('PurposeOfReferenceCodeSequence', [codeItem('109104', 'DCM', 'De-identifying Equipment')]);
     items.push(de);
   }
@@ -177,7 +177,7 @@ export function buildImageSeries(o) {
   const sopUIDs = [];
   const files = [];
   const derivation = [
-    `OMNIA ${OMNIA_VERSION}: converted from NIfTI`,
+    `femeIA.Co ${FEMEIA_VERSION}: converted from NIfTI`,
     `geometry: ${o.affineSource}${plan.matchedReference ? ' (matched to source DICOM grid)' : ''}`,
     `pixel values: ${enc.description}`,
     defaced ? 'face removed (CT defacing)' : '',
@@ -204,10 +204,10 @@ export function buildImageSeries(o) {
         ds.set('ContentTime', stamp.time, 'TM');
       }
       ds.set('Modality', modality, 'CS');
-      ds.set('Manufacturer', 'OMNIA', 'LO');
-      ds.set('ManufacturerModelName', 'OMNIA NIfTI-DICOM Converter', 'LO');
-      ds.set('SoftwareVersions', OMNIA_VERSION, 'LO');
-      ds.set('SeriesDescription', seriesDescription || 'OMNIA', 'LO');
+      ds.set('Manufacturer', 'femeIA.Co', 'LO');
+      ds.set('ManufacturerModelName', 'femeIA.Co NIfTI-DICOM Converter', 'LO');
+      ds.set('SoftwareVersions', FEMEIA_VERSION, 'LO');
+      ds.set('SeriesDescription', seriesDescription || 'femeIA.Co', 'LO');
       ds.set('DerivationDescription', derivation, 'ST');
       ds.seq('ContributingEquipmentSequence', contributingEquipment(meta, id));
       addPatientStudy(ds, id, defaced);
@@ -308,7 +308,7 @@ export function buildImageSeries(o) {
 
 /**
  * Build a binary DICOM Segmentation (one multi-frame instance) for a label volume on the grid of a
- * referenced image series that OMNIA (or the source DICOM) provides slice by slice.
+ * referenced image series that femeIA.Co (or the source DICOM) provides slice by slice.
  * @param o.labels  integer label TypedArray (3D)
  * @param o.segments [{value, label, category:[v,s,m], type:[v,s,m]}]
  * @param o.source  { plan, sopClass, sopUIDs: string[] (per k), seriesUID }
@@ -361,11 +361,11 @@ export function buildSegmentation(o) {
   ds.set('SOPInstanceUID', sopUID, 'UI');
   ds.set('ImageType', ['DERIVED', 'PRIMARY'], 'CS');
   ds.set('Modality', 'SEG', 'CS');
-  ds.set('Manufacturer', 'OMNIA', 'LO');
-  ds.set('ManufacturerModelName', 'OMNIA NIfTI-DICOM Converter', 'LO');
-  ds.set('DeviceSerialNumber', 'OMNIA-WEB', 'LO');
-  ds.set('SoftwareVersions', OMNIA_VERSION, 'LO');
-  ds.set('SeriesDescription', seriesDescription || 'OMNIA SEG', 'LO');
+  ds.set('Manufacturer', 'femeIA.Co', 'LO');
+  ds.set('ManufacturerModelName', 'femeIA.Co NIfTI-DICOM Converter', 'LO');
+  ds.set('DeviceSerialNumber', 'FEMEIA-WEB', 'LO');
+  ds.set('SoftwareVersions', FEMEIA_VERSION, 'LO');
+  ds.set('SeriesDescription', seriesDescription || 'femeIA.Co SEG', 'LO');
   ds.seq('ContributingEquipmentSequence', contributingEquipment(meta, id));
   addPatientStudy(ds, id, false);
   ds.set('SeriesInstanceUID', seriesUID, 'UI');
@@ -378,7 +378,7 @@ export function buildSegmentation(o) {
   ds.set('ContentDate', stamp.date, 'DA');
   ds.set('ContentTime', stamp.time, 'TM');
   ds.set('ContentLabel', 'SEGMENTATION', 'CS');
-  ds.set('ContentDescription', 'Converted from a NIfTI label map by OMNIA', 'LO');
+  ds.set('ContentDescription', 'Converted from a NIfTI label map by femeIA.Co', 'LO');
   ds.set('ContentCreatorName', '', 'PN');
   ds.set('SegmentationType', 'BINARY', 'CS');
   ds.set('LossyImageCompression', '00', 'CS');

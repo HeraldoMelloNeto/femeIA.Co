@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Independent voxel-exact check of a DICOM series against its source NIfTI.
 
-Uses only pydicom + nibabel + numpy (no OMNIA code, no dcm2niix):
+Uses only pydicom + nibabel + numpy (no femeIA.Co code, no dcm2niix):
   * every pixel centre's world position is computed from ImagePositionPatient,
     ImageOrientationPatient and PixelSpacing (LPS), converted to RAS and mapped to a source
     voxel index through the inverse NIfTI affine (nibabel's best affine, or --qform);

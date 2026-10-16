@@ -12,7 +12,7 @@ import { defaceCT, anteriorRender } from './deface.js';
 import { isLabelMap, parseLabelTable, buildSegments } from './labels.js';
 import { renderOrtho } from './qc.js';
 import { gzipAsync, safeName, bidsLabel, stemOf, baseName, textDecoder, fmtNum } from './util.js';
-import { newUID, OMNIA_VERSION } from './uid.js';
+import { newUID, FEMEIA_VERSION } from './uid.js';
 import { DEFAULT_SETTINGS } from './settings.js';
 
 export { DEFAULT_SETTINGS };
@@ -22,7 +22,7 @@ const TILT_MIN_DEG = 0.05;
 const DCM2NIIX_BENIGN = [
   /Instance Number \(0020,0013\) order is not spatial/i,
   /Philips enhanced DICOMs \(hint: export as classic DICOM\)/i,
-  /Note these images have gantry tilt/i, // OMNIA handles tilt explicitly (see the gantry tilt note)
+  /Note these images have gantry tilt/i, // femeIA.Co handles tilt explicitly (see the gantry tilt note)
   /Empty protocol name/i,
 ];
 
@@ -126,14 +126,14 @@ function examOutName(exam, idctx, patient) {
 
 function dcm2niixArgs(settings, idctx) {
   const ba = !idctx.anonymize ? 'n' : settings.dates === 'remove' ? 'y' : 'o';
-  const a = ['-b', 'y', '-ba', ba, '-z', 'n', '-f', 'omnia', '-i', 'n', '-w', '2', '-m', '2'];
+  const a = ['-b', 'y', '-ba', ba, '-z', 'n', '-f', 'femeia', '-i', 'n', '-w', '2', '-m', '2'];
   if (idctx.anonymize) a.push('-c', '');
   return a;
 }
 
 const BIDS_ORDER = ['task', 'acq', 'ce', 'rec', 'dir', 'run', 'mod', 'echo', 'flip', 'inv', 'mt', 'part', 'chunk'];
 
-/** Build a BIDS-like file stem from dcm2niix's BidsGuess plus OMNIA/dcm2niix post-fixes. */
+/** Build a BIDS-like file stem from dcm2niix's BidsGuess plus femeIA.Co/dcm2niix post-fixes. */
 export function bidsStem(subLabel, sesLabel, guess, modality, seriesNumber, suffix) {
   const dtype = guess ? (String(guess[0]).replace(/[^A-Za-z0-9]/g, '') || 'other') : modality === 'CT' ? 'ct' : 'other';
   const tokens = guess ? String(guess[1]).split('_').filter(Boolean) : [];
@@ -186,7 +186,7 @@ async function dcm2niiExam(exam, settings, env, progress, R) {
   if (new Set(inv.dicom.map((d) => d.inst.patientID)).size > 1) R.warnings.push('Archive contains more than one PatientID; the first one names the outputs');
   const ext = settings.outputFormat === 'nii' ? '.nii' : '.nii.gz';
   if (settings.bids) {
-    R.outputs.push({ path: 'dataset_description.json', bytes: new TextEncoder().encode(JSON.stringify({ Name: 'OMNIA export', BIDSVersion: '1.10.0', DatasetType: 'raw', GeneratedBy: [{ Name: 'OMNIA', Version: OMNIA_VERSION }, { Name: 'dcm2niix' }] }, null, 2)), compress: true });
+    R.outputs.push({ path: 'dataset_description.json', bytes: new TextEncoder().encode(JSON.stringify({ Name: 'femeIA.Co export', BIDSVersion: '1.10.0', DatasetType: 'raw', GeneratedBy: [{ Name: 'femeIA.Co', Version: FEMEIA_VERSION }, { Name: 'dcm2niix' }] }, null, 2)), compress: true });
   }
   const args = dcm2niixArgs(settings, idctx);
   const usedNames = new Set();
@@ -221,7 +221,7 @@ async function dcm2niiExam(exam, settings, env, progress, R) {
         for (const inst of subset.insts) items.push({ inst, bytes: await entryOf.get(inst).getBytes() });
         const res = await runner.run(items.map((it, i) => ({ name: `f${i}.dcm`, bytes: it.bytes })), args);
         const warn = [...new Set(res.log.filter((l) => /^Warning/i.test(l.trim())).map((l) => l.trim()))];
-        // dcm2niix hints that do not affect the image (OMNIA verifies every voxel independently) are kept as notes
+        // dcm2niix hints that do not affect the image (femeIA.Co verifies every voxel independently) are kept as notes
         const benign = (w) => DCM2NIIX_BENIGN.some((re) => re.test(w));
         row.notes.push(...warn.filter(benign).map((w) => `dcm2niix: ${w.replace(/^Warning:\s*/i, '')}`).filter((n) => !row.notes.includes(n)));
         row.warnings.push(...warn.filter((w) => !benign(w)).slice(0, 8));
@@ -247,7 +247,7 @@ async function dcm2niiExam(exam, settings, env, progress, R) {
           const outSet = byBase.get(base);
           const prep = prepareNifti({ outSet, tilted, interpolated: isTilt || isEq, settings, positions: subset.positions });
           kept.push({ base, outSet, json: outSet.json || (byBase.get(mainBase) || {}).json, interpolated: isTilt || isEq,
-            suffix: base.slice('omnia'.length).replace(/_Tilt_\d+|_Eq_\d+/g, '') + subset.tag, ...prep });
+            suffix: base.slice('femeia'.length).replace(/_Tilt_\d+|_Eq_\d+/g, '') + subset.tag, ...prep });
         }
         // independent verification of every non-interpolated output of this run against the DICOM images
         const exact = kept.filter((k) => !k.interpolated);
@@ -338,12 +338,12 @@ async function emitNifti(o) {
       const j = JSON.parse(textDecoder.decode(k.json));
       const c = cleanSidecar(j, idctx, patient, original);
       sidecar = c.json;
-      sidecar.OMNIAVersion = OMNIA_VERSION;
-      sidecar.OMNIAVerification = k.verification;
-      if (idctx.anonymize) sidecar.OMNIADeidentification = 'DICOM PS3.15 Basic Profile' + (idctx.s.retainPatientCharacteristics ? ' + Retain Patient Characteristics' : '') + (idctx.s.dates === 'shift' ? ' + Modified Dates' : idctx.s.dates === 'keep' ? ' + Full Dates' : '') + (idctx.s.keepDescriptions ? ' + Clean Descriptors' : '');
-      if (defaced) sidecar.OMNIADefaced = true;
-      if (interpolated) sidecar.OMNIAInterpolated = true;
-      if (tilted) sidecar.OMNIAGeometryNote = 'Gantry tilt: exact sheared sform built from ImagePositionPatient; qform disabled';
+      sidecar.FemeIAVersion = FEMEIA_VERSION;
+      sidecar.FemeIAVerification = k.verification;
+      if (idctx.anonymize) sidecar.FemeIADeidentification = 'DICOM PS3.15 Basic Profile' + (idctx.s.retainPatientCharacteristics ? ' + Retain Patient Characteristics' : '') + (idctx.s.dates === 'shift' ? ' + Modified Dates' : idctx.s.dates === 'keep' ? ' + Full Dates' : '') + (idctx.s.keepDescriptions ? ' + Clean Descriptors' : '');
+      if (defaced) sidecar.FemeIADefaced = true;
+      if (interpolated) sidecar.FemeIAInterpolated = true;
+      if (tilted) sidecar.FemeIAGeometryNote = 'Gantry tilt: exact sheared sform built from ImagePositionPatient; qform disabled';
       row._bidsGuess = j.BidsGuess;
     } catch (err) { row.warnings.push(`sidecar JSON unreadable: ${err.message}`); }
   }
@@ -450,7 +450,7 @@ async function nii2dcmExam(exam, settings, env, progress, R) {
         forUID = examState.forByCode[key];
       }
       const descriptor = (t) => (idctx.anonymize ? idctx.descriptor(t, meta.original) : t);
-      const desc = descriptor(meta.series.SeriesDescription) || `OMNIA ${seriesNumber + 1}`;
+      const desc = descriptor(meta.series.SeriesDescription) || `femeIA.Co ${seriesNumber + 1}`;
       if (it.lab.label) {
         // ---- segmentation
         const src = converted.find((c) => sameGrid(c, { dims: vol.dims, affine: it.aff.affine }));

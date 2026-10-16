@@ -1,8 +1,10 @@
-# OMNIA validation report
+# femeIA.Co validation report
 
-OMNIA 1.0.0 · battery run on 2026-10-16 · native dcm2niix v1.0.20260724 · dicom3tools `dciodvfy` · pydicom, nibabel, highdicom
+femeIA.Co 1.0.0 · battery run on 2026-10-16 · native dcm2niix v1.0.20260724 · dicom3tools `dciodvfy` · pydicom, nibabel, highdicom
 
-This document explains how OMNIA was tested and gives every result. All of it can be reproduced with
+> femeIA.Co 1.0.0 is OMNIA 1.0.0 renamed and restyled; the conversion engine is identical. This report is the OMNIA 1.0.0 battery, with the product name updated.
+
+This document explains how femeIA.Co was tested and gives every result. All of it can be reproduced with
 `tools/fetch_test_data.sh` and `tools/validate_all.sh` (see the README). The test data are public: the
 **dcm_qa** regression collections that Chris Rorden and collaborators maintain for dcm2niix (12 repositories,
 Siemens, GE, Philips, Canon and United Imaging MR plus GE and Philips CT, classic and enhanced DICOM), and one
@@ -31,7 +33,7 @@ dcm2niix's expected outputs for real acquisitions), with their BIDS sidecars and
 
 **Procedure** (`test/py/validate_refs.py`), for each file:
 
-1. OMNIA converts it to a classic CT or MR DICOM series with the Node build of the same engine the browser
+1. femeIA.Co converts it to a classic CT or MR DICOM series with the Node build of the same engine the browser
    uses, and runs its own voxel-by-voxel self-check.
 2. *Independent check* (`test/py/dicom_vs_nifti.py`, pydicom + nibabel only): for every pixel of every instance, the
    world position computed from ImagePositionPatient, ImageOrientationPatient and PixelSpacing is mapped back
@@ -44,7 +46,7 @@ dcm2niix's expected outputs for real acquisitions), with their BIDS sidecars and
 
 **Results.**
 
-| Dataset | NIfTI files | Converted | Refused | OMNIA self-check | Independent check (pydicom + nibabel) | Native dcm2niix round trip | dciodvfy errors |
+| Dataset | NIfTI files | Converted | Refused | femeIA.Co self-check | Independent check (pydicom + nibabel) | Native dcm2niix round trip | dciodvfy errors |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | dcm_qa | 49 | 49 | 0 | 49/49 | 49/49 | 49 | 0 |
 | dcm_qa_canon | 11 | 11 | 0 | 11/11 | 11/11 | 11 | 0 |
@@ -66,10 +68,10 @@ All 189 converted volumes were stored losslessly (no quantisation was needed); 1
 coronal. The largest index error in the independent check was 1.4e-11 voxel, the largest difference in
 corner position after the dcm2niix round trip 2.3e-04 mm, and the largest value difference 0.
 
-*Why two files were refused.* Both are colour (RGB) fractional-anisotropy maps. OMNIA converts grey-level CT and MR
+*Why two files were refused.* Both are colour (RGB) fractional-anisotropy maps. femeIA.Co converts grey-level CT and MR
 images only, and says so instead of writing a wrong series.
 
-*Why three round trips are marked n/a.* They are gantry-tilted CT series. OMNIA writes the exact geometry (slice
+*Why three round trips are marked n/a.* They are gantry-tilted CT series. femeIA.Co writes the exact geometry (slice
 positions sheared along the tilt), which the independent check confirms voxel by voxel; dcm2niix's non-resampled
 output approximates the slice direction for tilted data, so a world-space comparison with it is not meaningful.
 
@@ -77,13 +79,13 @@ output approximates the slice direction for tilted data, so a world-space compar
 
 **Procedure** (`test/py/validate_dcm2nii.py`), for each of the 12 datasets:
 
-1. The `In` folder is packed as one exam (ZIP) and converted by OMNIA with its default settings: de-identification
+1. The `In` folder is packed as one exam (ZIP) and converted by femeIA.Co with its default settings: de-identification
    on, BIDS names, localizers and secondary captures skipped, at least 3 images per series, irregular spacing split
    losslessly, exact geometry for gantry tilt.
-2. OMNIA's own check runs during conversion: *voxel-exact* (every uncompressed classic image located in the NIfTI
+2. femeIA.Co's own check runs during conversion: *voxel-exact* (every uncompressed classic image located in the NIfTI
    and compared value by value), *geometry-exact* (enhanced multi-frame or compressed data: every frame position
    checked) or *dcm2niix only* (mosaics, whose slices are not individually addressable).
-3. The same folder is converted by the **native** dcm2niix. Every NIfTI written by OMNIA must have a native counterpart
+3. The same folder is converted by the **native** dcm2niix. Every NIfTI written by femeIA.Co must have a native counterpart
    with an identical voxel array, identical scaling, an affine within 10⁻⁴ mm and identical gradient tables.
    Outputs that by design have no native counterpart (irregular spacing split into blocks; tilt written with the exact
    sheared affine) are checked **directly against the DICOM images** with pydicom: every pixel of every instance must
@@ -94,7 +96,7 @@ output approximates the slice direction for tilted data, so a world-space compar
 
 **Results.**
 
-| Dataset | Series converted | Skipped by filters | Errors | OMNIA check: voxel-exact | geometry-exact | dcm2niix only (mosaic) | NIfTI outputs | Identical to native dcm2niix | Exact against the DICOM images | Identifiers found in outputs |
+| Dataset | Series converted | Skipped by filters | Errors | femeIA.Co check: voxel-exact | geometry-exact | dcm2niix only (mosaic) | NIfTI outputs | Identical to native dcm2niix | Exact against the DICOM images | Identifiers found in outputs |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | dcm_qa | 49 | 1 | 0 | 0 | 0 | 49 | 49 | 49 | 0 | 0 |
 | dcm_qa_canon | 11 | 0 | 0 | 11 | 0 | 0 | 11 | 11 | 0 | 0 |
@@ -111,11 +113,11 @@ output approximates the slice direction for tilted data, so a world-space compar
 | **Total** | **169** | **11** | **0** | **66** | **50** | **74** | **190** | **186** | **4** | **0** |
 
 Identifying strings and UIDs collected from the source headers and searched in every output: 22930.
-Coincidences in technical fields (not identifying): `Galan 3T in ManufacturersModelName`; `HEAD in BodyPart`; `dicom in OMNIADeidentification`; `epiRT in SequenceName`.
+Coincidences in technical fields (not identifying): `Galan 3T in ManufacturersModelName`; `HEAD in BodyPart`; `dicom in FemeIADeidentification`; `epiRT in SequenceName`.
 
 ## 3. dcm2niix in the browser versus native dcm2niix
 
-OMNIA uses dcm2niix compiled to WebAssembly (`@niivue/dcm2niix`). `test/py/wasm_vs_native.py` converts every
+femeIA.Co uses dcm2niix compiled to WebAssembly (`@niivue/dcm2niix`). `test/py/wasm_vs_native.py` converts every
 dataset with both builds and the same options and compares the files byte by byte.
 
 | Dataset | NIfTI (native) | NIfTI (browser) | Byte-identical, same name | Identical NIfTI + sidecar, any name |
@@ -185,7 +187,7 @@ access step, adds exams through the file input and runs two batches:
 - **NIfTI → DICOM**: an MR volume with a label map and label names (→ MR series + DICOM SEG), and a head CT with
   **face removal** enabled.
 
-`test/py/validate_e2e.py` then checks the downloaded files with no OMNIA code: every NIfTI against native dcm2niix,
+`test/py/validate_e2e.py` then checks the downloaded files with no femeIA.Co code: every NIfTI against native dcm2niix,
 identifiers in every output file, the MR series with pydicom/nibabel and a native dcm2niix round trip, the SEG with
 highdicom, and the defaced CT: every changed voxel must have become air (−1000 HU), voxels that were already air must
 be untouched, and no changed voxel may touch an intracranial mask computed independently (brain/CSF-range voxels
@@ -202,7 +204,7 @@ eroded to separate them from extracranial soft tissue, largest component, grown 
 }
 ```
 
-Face removal, checked independently: 796.4 mL changed beyond the plane, all set to −1000 HU; 0 voxels that were already air touched; independent intracranial estimate 1459.1 mL (OMNIA's own estimate: 1402 mL) with **0** changed voxels inside it. Timing in headless Chromium on 2 CPU cores: 71.0 s for the three DICOM exams (44 NIfTI volumes), 4.0 s for the two NIfTI exams.
+Face removal, checked independently: 796.4 mL changed beyond the plane, all set to −1000 HU; 0 voxels that were already air touched; independent intracranial estimate 1459.1 mL (femeIA.Co's own estimate: 1402 mL) with **0** changed voxels inside it. Timing in headless Chromium on 2 CPU cores: 71.0 s for the three DICOM exams (44 NIfTI volumes), 4.0 s for the two NIfTI exams.
 
 ## 6. Unit tests
 
@@ -215,7 +217,7 @@ multi-member gzip, qform conventions).
 
 Validation is only useful if it can fail. These were found while building this report and corrected in 1.0.0:
 
-- **Sagittal 3D series that dcm2niix reorders** (United Imaging): OMNIA's DICOM → NIfTI check assumed the DICOM
+- **Sagittal 3D series that dcm2niix reorders** (United Imaging): femeIA.Co's DICOM → NIfTI check assumed the DICOM
   planes are stacked along the third NIfTI axis and refused a correct conversion. The check now finds the slice axis
   from the geometry.
 - **United Imaging diffusion mosaics** have no ImagePositionPatient; they were skipped. They are now recognised as

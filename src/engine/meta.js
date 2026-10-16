@@ -101,7 +101,7 @@ export function assembleMeta({ refDs, refSeriesDs, sidecar, csvRow, settings, ex
     ['reference', refDs ? refDs.string('Modality') : ''],
     ['default', settings.defaultModality]));
   if (modality !== 'CT' && modality !== 'MR') {
-    throw new Error(`Modality "${modality}" is outside OMNIA's scope (CT and MR only)`);
+    throw new Error(`Modality "${modality}" is outside femeIA.Co's scope (CT and MR only)`);
   }
   const series = {
     Modality: modality,

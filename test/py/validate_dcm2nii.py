@@ -2,12 +2,12 @@
 """DICOM -> NIfTI validation on every public dcm_qa dataset.
 
 For each <data_root>/dcm_qa*/In folder:
-  1. the folder is packed as one exam (ZIP) and converted by OMNIA (Node, same engine as the browser worker),
+  1. the folder is packed as one exam (ZIP) and converted by femeIA.Co (Node, same engine as the browser worker),
      with the default settings (de-identification on, BIDS names, localizers and derived secondaries filtered);
-  2. OMNIA's own independent verification result is recorded per series;
-  3. the same folder is converted with the native dcm2niix and every OMNIA NIfTI must have a native counterpart
+  2. femeIA.Co's own independent verification result is recorded per series;
+  3. the same folder is converted with the native dcm2niix and every femeIA.Co NIfTI must have a native counterpart
      with an identical voxel array, identical scaling and an affine within 1e-4 mm (gantry-tilt series, where
-     OMNIA deliberately writes the exact sheared geometry, are compared with a slice-position check instead);
+     femeIA.Co deliberately writes the exact sheared geometry, are compared with a slice-position check instead);
   4. identifying strings and UIDs collected from the source headers must not occur in any output file.
 
 usage: validate_dcm2nii.py <data_root> <work_dir> <report.json>
@@ -20,7 +20,7 @@ data_root, work, report = sys.argv[1:4]
 os.makedirs(work, exist_ok=True)
 TECHNICAL_KEYS = {'SequenceName', 'PulseSequenceName', 'PulseSequenceDetails', 'SequenceVariant', 'ScanningSequence',
                   'ManufacturersModelName', 'SoftwareVersions', 'ImageType', 'ScanOptions',
-                  'OMNIAVersion', 'OMNIAVerification', 'OMNIADeidentification',
+                  'FemeIAVersion', 'FemeIAVerification', 'FemeIADeidentification',
                   # anatomical term (e.g. a phantom named 'HEAD')
                   'BodyPart', 'BodyPartExamined'}
 FIELDS = ['PatientName', 'PatientID', 'OtherPatientIDs', 'PatientBirthDate', 'InstitutionName', 'InstitutionAddress',
@@ -43,12 +43,12 @@ def unscaled(img):
 
 
 def direct_check(im, f, src):
-    """Check an OMNIA NIfTI directly against the DICOM images of its series (no dcm2niix involved).
+    """Check an femeIA.Co NIfTI directly against the DICOM images of its series (no dcm2niix involved).
 
-    Used where native dcm2niix has no identical counterpart by design: gantry-tilted series (OMNIA writes the
-    exact sheared affine) and series with irregular spacing (OMNIA splits them into uniform blocks).
+    Used where native dcm2niix has no identical counterpart by design: gantry-tilted series (femeIA.Co writes the
+    exact sheared affine) and series with irregular spacing (femeIA.Co splits them into uniform blocks).
     The series is found by SeriesNumber (BIDS 'run' entity) and split by SeriesInstanceUID; for a candidate
-    series, every pixel centre of every instance is mapped through the inverse OMNIA affine: instances that fall
+    series, every pixel centre of every instance is mapped through the inverse femeIA.Co affine: instances that fall
     on the grid (integer indices within 1e-3 voxel, inside the volume) must have identical values, and every
     slice of the NIfTI must be filled exactly once."""
     m = re.search(r'run-(\d+)', os.path.basename(f))
@@ -118,9 +118,9 @@ for ds_dir in sorted(glob.glob(os.path.join(data_root, 'dcm_qa*'))):
         for r_, _, fs in os.walk(src):
             for f in fs:
                 p = os.path.join(r_, f); z.write(p, os.path.relpath(p, src))
-    out = os.path.join(w, 'omnia')
+    out = os.path.join(w, 'femeia')
     r = run(['node', os.path.join(ROOT, 'test/cli/exam.mjs'), zp, out, '--direction', 'dcm2nii'])
-    # OMNIA reads gzip-compressed DICOM files (.dcm.gz) directly; native dcm2niix and pydicom do not:
+    # femeIA.Co reads gzip-compressed DICOM files (.dcm.gz) directly; native dcm2niix and pydicom do not:
     # give them a decompressed copy of the source folder
     if any(f.endswith('.gz') for _, _, fs in os.walk(src) for f in fs):
         plain = os.path.join(w, 'source_decompressed')
@@ -142,7 +142,7 @@ for ds_dir in sorted(glob.glob(os.path.join(data_root, 'dcm_qa*'))):
     rec['series_total'] = len(summ['series'])
     rec['series_by_status'] = {s: sum(x['status'] == s for x in summ['series']) for s in ('ok', 'warning', 'skipped', 'error')}
     ver = [v.strip() for x in summ['series'] if x['status'] in ('ok', 'warning') for v in (x['verification'] or '').split(';') if v.strip()]
-    rec['omnia_verification'] = {k: sum(v.startswith(k) for v in ver) for k in ('voxel-exact', 'geometry-exact', 'not applicable', 'dcm2niix only', 'FAILED')}
+    rec['femeia_verification'] = {k: sum(v.startswith(k) for v in ver) for k in ('voxel-exact', 'geometry-exact', 'not applicable', 'dcm2niix only', 'FAILED')}
     rec['errors'] = summ['errors']
     rec['skipped_reasons'] = sorted({n for x in summ['series'] if x['status'] == 'skipped' for n in x['notes'][:1]})[:10]
     # native dcm2niix
@@ -156,7 +156,7 @@ for ds_dir in sorted(glob.glob(os.path.join(data_root, 'dcm_qa*'))):
         im = nib.load(f); arr = unscaled(im)
         cands = [(nf, nim) for nf, nim, narr in natives
                  if narr.shape == arr.shape and narr.dtype == arr.dtype and np.array_equal(narr, arr)]
-        row = {'omnia': os.path.relpath(f, out)}
+        row = {'femeia': os.path.relpath(f, out)}
         if not cands:
             # e.g. irregular spacing split into uniform blocks: check against the DICOM images directly
             row['native'] = None
@@ -183,7 +183,7 @@ for ds_dir in sorted(glob.glob(os.path.join(data_root, 'dcm_qa*'))):
                     break
             row.update(best)
             if not row['ok'] and row['scaling_equal'] and row.get('bval_equal', True) and row.get('bvec_equal', True):
-                # e.g. gantry tilt: OMNIA writes the exact sheared sform, native dcm2niix an approximate slice vector
+                # e.g. gantry tilt: femeIA.Co writes the exact sheared sform, native dcm2niix an approximate slice vector
                 row['direct_check'] = direct_check(im, f, src)
                 row['ok'] = row['direct_check'].get('ok', False)
         rows.append(row)
@@ -237,9 +237,9 @@ for ds_dir in sorted(glob.glob(os.path.join(data_root, 'dcm_qa*'))):
     rec['identifying_tokens_checked'] = len(tokens)
     rec['identifying_hits_outside_technical_fields'] = [h for h in hits if not h['technical_only']][:10]
     rec['technical_field_coincidences'] = sorted({f"{h['value']} in {k}" for h in hits if h['technical_only'] for k in h['sidecar_keys']})
-    rec['ok'] = rec['confirmed_independently'] == rec['outputs'] and not rec['identifying_hits_outside_technical_fields'] and rec['omnia_verification']['FAILED'] == 0
+    rec['ok'] = rec['confirmed_independently'] == rec['outputs'] and not rec['identifying_hits_outside_technical_fields'] and rec['femeia_verification']['FAILED'] == 0
     results.append(rec)
-    print(name, 'status', rec['exam_status'], rec['series_by_status'], 'verification', rec['omnia_verification'],
+    print(name, 'status', rec['exam_status'], rec['series_by_status'], 'verification', rec['femeia_verification'],
           '| outputs', rec['outputs'], 'confirmed', rec['confirmed_independently'], '(native-identical', rec['identical_to_native_dcm2niix'], '+ direct', rec['checked_directly_against_dicom'], ')',
           '| PHI hits', len(rec['identifying_hits_outside_technical_fields']), 'tech', rec['technical_field_coincidences'])
     for x in rec['mismatches']:

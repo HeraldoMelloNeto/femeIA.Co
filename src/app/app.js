@@ -1,8 +1,8 @@
-// OMNIA user interface: settings, queue, worker orchestration, writing results, reports.
+// femeIA.Co user interface: settings, queue, worker orchestration, writing results, reports.
 import { STRINGS } from './i18n.js';
 import { DEFAULT_SETTINGS } from '../engine/settings.js';
 import { ZipWriter } from '../engine/zip.js';
-import { OMNIA_VERSION } from '../engine/uid.js';
+import { FEMEIA_VERSION } from '../engine/uid.js';
 import { METHOD } from './method.js';
 
 const MAX_EXAMS = 100;
@@ -25,8 +25,8 @@ const store = {
 };
 
 const state = {
-  lang: store.get('omnia.lang', navigator.language && navigator.language.toLowerCase().startsWith('pt') ? 'pt' : 'en'),
-  settings: Object.assign(structuredClone(DEFAULT_SETTINGS), store.get('omnia.settings', {}), { password: '' }),
+  lang: store.get('femeia.lang', navigator.language && navigator.language.toLowerCase().startsWith('pt') ? 'pt' : 'en'),
+  settings: Object.assign(structuredClone(DEFAULT_SETTINGS), store.get('femeia.settings', {}), { password: '' }),
   exams: [], nextId: 1, running: false, paused: false, cancel: false, dir: null, csvText: null, csvName: null,
   worker: null, engineReady: false, batchStamp: null, batchSettings: null, lastBatchExams: [],
 };
@@ -38,18 +38,18 @@ function applyI18n() {
   document.documentElement.lang = state.lang === 'pt' ? 'pt-BR' : 'en';
   for (const n of document.querySelectorAll('[data-i18n]')) n.textContent = t(n.dataset.i18n);
   $('#langBtn').textContent = t('langSwitch');
-  $('#version').textContent = `v${OMNIA_VERSION}.`;
+  $('#version').textContent = `v${FEMEIA_VERSION}.`;
   renderDirHelp(); renderSettings(); renderDest(); renderQueue(); renderSummary(); renderMethod(); renderControls(); renderResults();
 }
-$('#langBtn').addEventListener('click', () => { state.lang = state.lang === 'pt' ? 'en' : 'pt'; store.set('omnia.lang', state.lang); applyI18n(); });
+$('#langBtn').addEventListener('click', () => { state.lang = state.lang === 'pt' ? 'en' : 'pt'; store.set('femeia.lang', state.lang); applyI18n(); });
 function applyTheme(th) {
   if (th) document.documentElement.dataset.theme = th; else delete document.documentElement.dataset.theme;
 }
-applyTheme(store.get('omnia.theme', null));
+applyTheme(store.get('femeia.theme', null));
 $('#themeBtn').addEventListener('click', () => {
   const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
   const next = dark ? 'light' : 'dark';
-  applyTheme(next); store.set('omnia.theme', next);
+  applyTheme(next); store.set('femeia.theme', next);
 });
 
 // ------------------------------------------------------------------ direction switch + slab
@@ -94,7 +94,7 @@ for (const b of document.querySelectorAll('.dir')) {
 }
 
 // ------------------------------------------------------------------ settings form
-function saveSettings() { const { password, ...rest } = state.settings; store.set('omnia.settings', rest); }
+function saveSettings() { const { password, ...rest } = state.settings; store.set('femeia.settings', rest); }
 const get = (path) => path.split('.').reduce((o, k) => o[k], state.settings);
 const setv = (path, v) => { const ks = path.split('.'); const last = ks.pop(); ks.reduce((o, k) => o[k], state.settings)[last] = v; saveSettings(); };
 
@@ -168,7 +168,7 @@ function renderDest() {
   d.textContent = '';
   if (!canPickDir) { d.append(el('span', { text: t('destNoApi') })); return; }
   d.append(el('button', { type: 'button', text: t('destChoose'), disabled: state.running, onclick: async () => {
-    try { state.dir = await window.showDirectoryPicker({ mode: 'readwrite', id: 'omnia-out' }); renderDest(); } catch { /* user cancelled */ }
+    try { state.dir = await window.showDirectoryPicker({ mode: 'readwrite', id: 'femeia-out' }); renderDest(); } catch { /* user cancelled */ }
   } }), state.dir ? el('span', {}, `${t('dest')}: `, el('strong', { text: state.dir.name })) : el('span', { text: t('destNone') }));
 }
 
@@ -398,7 +398,7 @@ function startWorker() {
 const waiters = {};
 function waitFor(type) { return new Promise((res) => { waiters[type] = res; }); }
 function onWorker(m) {
-  if (m.type === 'ready') { state.engineReady = true; $('#engine').textContent = `${t('engineReady')} · OMNIA ${m.version}`.replace(' · ', ', '); renderControls(); return; }
+  if (m.type === 'ready') { state.engineReady = true; $('#engine').textContent = `${t('engineReady')} · femeIA.Co ${m.version}`.replace(' · ', ', '); renderControls(); return; }
   if (waiters[m.type]) { const f = waiters[m.type]; delete waiters[m.type]; f(m); return; }
   if (m.type === 'progress') {
     const ex = state.exams.find((e) => e.id === m.id);
@@ -516,10 +516,10 @@ async function finishBatch() {
   if (!batchExams.length) return;
   state.worker.postMessage({ type: 'mapping' });
   const mapping = (await Promise.race([waitFor('mapping'), new Promise((r) => setTimeout(() => r({ rows: [] }), 5000))])).rows;
-  const base = `OMNIA_${state.batchStamp}`;
+  const base = `FEMEIA_${state.batchStamp}`;
   const csv = new Blob([toCsv(reportRows())], { type: 'text/csv' });
   const json = new Blob([JSON.stringify({
-    software: `OMNIA ${OMNIA_VERSION}`, createdAt: new Date().toISOString(), userAgent: navigator.userAgent,
+    software: `femeIA.Co ${FEMEIA_VERSION}`, createdAt: new Date().toISOString(), userAgent: navigator.userAgent,
     settings: { ...state.batchSettings, password: state.batchSettings.password ? '(set)' : '' },
     exams: state.exams.map((ex) => ({ name: ex.name, size: ex.size, status: ex.status, error: ex.error || undefined, writtenTo: ex.writtenTo, result: ex.result })),
   }, null, 2)], { type: 'application/json' });
@@ -555,7 +555,7 @@ function renderResults() {
       await z.add(R.csv[0], new Uint8Array(await R.csv[1].arrayBuffer()));
       await z.add(R.json[0], new Uint8Array(await R.json[1].arrayBuffer()));
       const { parts } = z.finish();
-      download(new Blob(parts, { type: 'application/zip' }), `OMNIA_${state.batchStamp}.zip`);
+      download(new Blob(parts, { type: 'application/zip' }), `FEMEIA_${state.batchStamp}.zip`);
     } }));
   }
   if (state.dir) acts.append(el('p', { class: 'help', text: `${t('written')} ${state.dir.name}/` }));
@@ -571,7 +571,7 @@ function renderMethod() {
 }
 
 // ------------------------------------------------------------------ access gate (email)
-const ACCESS_KEY = 'omnia.access.v1';
+const ACCESS_KEY = 'femeia.access.v1';
 function hasAccess() { const a = store.get(ACCESS_KEY, null); return a && a.exp > Date.now(); }
 function grant(email, token, days = 30) { store.set(ACCESS_KEY, { email, token, exp: Date.now() + days * 864e5 }); }
 async function api(path, body) {
@@ -617,7 +617,7 @@ function gate() {
 }
 
 // ------------------------------------------------------------------ boot
-if (new URLSearchParams(location.search).has('e2e')) window.__omnia = state; // test hook (end-to-end tests only)
+if (new URLSearchParams(location.search).has('e2e')) window.__femeia = state; // test hook (end-to-end tests only)
 buildSlab();
 applyI18n();
 playDirection();

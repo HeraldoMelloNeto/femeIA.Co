@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Independent validation of the files produced by the browser end-to-end test (test/e2e/e2e.mjs).
 
-Nothing here uses OMNIA code. Tools: native dcm2niix, pydicom, nibabel, numpy, scipy, highdicom, dciodvfy.
+Nothing here uses femeIA.Co code. Tools: native dcm2niix, pydicom, nibabel, numpy, scipy, highdicom, dciodvfy.
 
 DICOM -> NIfTI (run A)
-  * the source DICOM folders are converted again with the native dcm2niix; every NIfTI written by OMNIA in
+  * the source DICOM folders are converted again with the native dcm2niix; every NIfTI written by femeIA.Co in
     the browser must have a native counterpart with identical voxel array, scaling and affine (1e-4 mm),
     and identical .bval/.bvec when present;
   * de-identification: identifying strings and UIDs collected from every source DICOM header must not occur
@@ -31,8 +31,8 @@ R = {'dicom_to_nifti': [], 'nifti_to_dicom': [], 'deidentification': {}}
 # sidecar keys that hold scanner/protocol identifiers, not person or site identifiers
 TECHNICAL_KEYS = {'SequenceName', 'PulseSequenceName', 'PulseSequenceDetails', 'SequenceVariant', 'ScanningSequence',
                   'ManufacturersModelName', 'SoftwareVersions', 'ImageType', 'ScanOptions',
-                  # fixed texts written by OMNIA itself (e.g. 'DICOM PS3.15 Basic Profile')
-                  'OMNIAVersion', 'OMNIAVerification', 'OMNIADeidentification',
+                  # fixed texts written by femeIA.Co itself (e.g. 'DICOM PS3.15 Basic Profile')
+                  'FemeIAVersion', 'FemeIAVerification', 'FemeIADeidentification',
                   # anatomical term (e.g. a phantom named 'HEAD')
                   'BodyPart', 'BodyPartExamined'}
 
@@ -80,16 +80,16 @@ for ex in a_report['exams']:
     for f in sorted(glob.glob(os.path.join(nat, '*.nii'))):
         im = nib.load(f)
         natives.append((f, im, nifti_key(im)))
-    omnia = sorted(glob.glob(os.path.join(out, '**', '*.nii.gz'), recursive=True))
+    femeia = sorted(glob.glob(os.path.join(out, '**', '*.nii.gz'), recursive=True))
     rows = []
-    for f in omnia:
+    for f in femeia:
         im = nib.load(f)
         arr = nifti_key(im)
         match = None
         for nf, nim, narr in natives:
             if narr.shape == arr.shape and narr.dtype == arr.dtype and np.array_equal(narr, arr):
                 match = (nf, nim); break
-        row = {'omnia': os.path.relpath(f, out), 'shape': list(arr.shape)}
+        row = {'femeia': os.path.relpath(f, out), 'shape': list(arr.shape)}
         if not match:
             row['ok'] = False; row['problem'] = 'no native dcm2niix output with an identical voxel array'
         else:

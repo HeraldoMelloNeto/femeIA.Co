@@ -1,6 +1,6 @@
 // CT head defacing by a shear plane fitted to the intracranial volume.
 //
-// Method (OMNIA's own implementation of the "shear-plane" idea published as Quickshear,
+// Method (femeIA.Co's own implementation of the "shear-plane" idea published as Quickshear,
 // Schimke & Hale 2011):
 //  1. Work on a ~2 mm subsampled grid. Classify voxels in Hounsfield units: bone (>= 300 HU),
 //     brain/CSF-like soft tissue (-20..100 HU), barrier (< -50 HU: air, fat).

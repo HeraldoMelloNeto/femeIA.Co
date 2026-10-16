@@ -24,14 +24,14 @@ refs = load('refs.json')
 by = defaultdict(list)
 for r in refs:
     by[r['file'].split('/')[0]].append(r)
-P('| Dataset | NIfTI files | Converted | Refused | OMNIA self-check | Independent check (pydicom + nibabel) | Native dcm2niix round trip | dciodvfy errors |')
+P('| Dataset | NIfTI files | Converted | Refused | femeIA.Co self-check | Independent check (pydicom + nibabel) | Native dcm2niix round trip | dciodvfy errors |')
 P('|---|---:|---:|---:|---:|---:|---:|---:|')
 tot = defaultdict(int)
 for ds in sorted(by):
     rs = by[ds]
-    conv = [r for r in rs if r.get('omnia') == 'ok']
+    conv = [r for r in rs if r.get('femeia') == 'ok']
     row = {
-        'n': len(rs), 'conv': len(conv), 'ref': sum(r.get('omnia') == 'refused' for r in rs),
+        'n': len(rs), 'conv': len(conv), 'ref': sum(r.get('femeia') == 'refused' for r in rs),
         'self': sum(bool(r.get('self_verify')) for r in conv), 'indep': sum(bool(r.get('independent_check')) for r in conv),
         'rt': sum(r.get('roundtrip') == 'ok' for r in conv), 'tilt': sum(r.get('roundtrip') == 'n/a-tilt' for r in conv),
         'dv': sum(bool(r.get('dciodvfy_errors')) for r in conv),
@@ -42,7 +42,7 @@ for ds in sorted(by):
     P(f"| {ds} | {row['n']} | {row['conv']} | {row['ref']} | {row['self']}/{row['conv']} | {row['indep']}/{row['conv']} | {rt} | {row['dv']} |")
 rt = f"{tot['rt']}" + (f" (+{tot['tilt']} tilt, n/a)" if tot['tilt'] else '')
 P(f"| **Total** | **{tot['n']}** | **{tot['conv']}** | **{tot['ref']}** | **{tot['self']}/{tot['conv']}** | **{tot['indep']}/{tot['conv']}** | **{rt}** | **{tot['dv']}** |")
-refused = [r for r in refs if r.get('omnia') == 'refused']
+refused = [r for r in refs if r.get('femeia') == 'refused']
 if refused:
     P('')
     P('Refused files: ' + '; '.join(f"`{r['file']}`" for r in refused) + '.')
@@ -51,11 +51,11 @@ P('')
 # --- DICOM -> NIfTI
 section('dcm2nii')
 d2n = load('dcm2nii.json')
-P('| Dataset | Series converted | Skipped by filters | Errors | OMNIA check: voxel-exact | geometry-exact | dcm2niix only (mosaic) | NIfTI outputs | Identical to native dcm2niix | Exact against the DICOM images | Identifiers found in outputs |')
+P('| Dataset | Series converted | Skipped by filters | Errors | femeIA.Co check: voxel-exact | geometry-exact | dcm2niix only (mosaic) | NIfTI outputs | Identical to native dcm2niix | Exact against the DICOM images | Identifiers found in outputs |')
 P('|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|')
 t = defaultdict(int)
 for r in d2n['datasets']:
-    sb = r['series_by_status']; v = r['omnia_verification']
+    sb = r['series_by_status']; v = r['femeia_verification']
     vals = [sb['ok'] + sb['warning'], sb['skipped'], sb['error'], v['voxel-exact'], v['geometry-exact'], v['dcm2niix only'],
             r['outputs'], r['identical_to_native_dcm2niix'], r['checked_directly_against_dicom'], len(r['identifying_hits_outside_technical_fields'])]
     for i, x in enumerate(vals):

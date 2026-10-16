@@ -35,7 +35,7 @@ export class IdentityContext {
     let p = this.patients.get(k);
     if (!p) {
       this.n += 1;
-      const pseudo = `${this.s.pseudonymPrefix || 'OMNIA'}-${String(this.n).padStart(4, '0')}`;
+      const pseudo = `${this.s.pseudonymPrefix || 'FEMEIA'}-${String(this.n).padStart(4, '0')}`;
       let offsetDays = 0;
       if (this.s.dates === 'shift') {
         const r = new Uint32Array(1);

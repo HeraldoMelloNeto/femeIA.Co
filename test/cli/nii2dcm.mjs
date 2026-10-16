@@ -14,7 +14,7 @@ const inFile = args[0], outDir = args[1];
 const vol = readNifti(new Uint8Array(fs.readFileSync(inFile)));
 const sidecarPath = opt('--json');
 const sidecar = sidecarPath ? JSON.parse(fs.readFileSync(sidecarPath, 'utf8')) : null;
-const settings = { anonymize: flag('--anon'), pseudonymPrefix: 'OMNIA', dates: opt('--dates', 'remove'), retainPatientCharacteristics: true,
+const settings = { anonymize: flag('--anon'), pseudonymPrefix: 'FEMEIA', dates: opt('--dates', 'remove'), retainPatientCharacteristics: true,
   keepDescriptions: true, defaultModality: opt('--modality', 'MR'), valuePolicy: flag('--quantize') ? 'quantize' : 'lossless' };
 const idctx = new IdentityContext(settings);
 const stem = path.basename(inFile).replace(/\.nii(\.gz)?$/, '');

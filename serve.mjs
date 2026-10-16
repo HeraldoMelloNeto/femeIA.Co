@@ -1,4 +1,4 @@
-// Local static server for OMNIA with the same security headers as Netlify (netlify.toml).
+// Local static server for femeIA.Co with the same security headers as Netlify (netlify.toml).
 // usage: node serve.mjs [port]  ->  http://localhost:8080
 import http from 'node:http';
 import fs from 'node:fs';
@@ -19,4 +19,4 @@ http.createServer((req, res) => {
   if (!fs.existsSync(p)) { res.writeHead(404, headers).end('not found'); return; }
   res.writeHead(200, { ...headers, 'content-type': types[path.extname(p)] || 'application/octet-stream' });
   fs.createReadStream(p).pipe(res);
-}).listen(port, () => console.log(`OMNIA on http://localhost:${port} (local mode: access functions are not served)`));
+}).listen(port, () => console.log(`femeIA.Co on http://localhost:${port} (local mode: access functions are not served)`));

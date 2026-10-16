@@ -3,7 +3,7 @@ import { getStore } from '@netlify/blobs';
 import crypto from 'node:crypto';
 
 export const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
-export const store = () => getStore({ name: 'omnia-access', consistency: 'strong' });
+export const store = () => getStore({ name: 'femeia-access', consistency: 'strong' });
 export const normEmail = (e) => String(e || '').trim().toLowerCase();
 export const validEmail = (e) => /^[^\s@]{1,64}@[^\s@]{1,190}\.[a-z]{2,24}$/i.test(e) && e.length <= 254;
 export const sha = (s) => crypto.createHash('sha256').update(s).digest('hex');
@@ -26,7 +26,7 @@ export async function allow(st, key, limit, windowMs) {
   return rec.n <= limit;
 }
 
-/** Record or update the qualified contact (the only personal data OMNIA ever stores). */
+/** Record or update the qualified contact (the only personal data femeIA.Co ever stores). */
 export async function upsertLead(st, email, patch) {
   const key = `lead:${sha(email)}`;
   const cur = (await st.get(key, { type: 'json' })) || { email, firstSeen: new Date().toISOString(), requests: 0, verified: false };

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OMNIA · NIfTI ⇄ DICOM</title>
-  <meta name="description" content="OMNIA converts NIfTI to DICOM and DICOM to NIfTI entirely in the browser, with lossless conversion, independent verification, de-identification and CT defacing.">
+  <title>femeIA.Co · NIfTI ⇄ DICOM</title>
+  <meta name="description" content="femeIA.Co converts NIfTI to DICOM and DICOM to NIfTI entirely in the browser, with lossless conversion, independent verification, de-identification and CT defacing.">
   <meta name="color-scheme" content="light dark">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
@@ -12,14 +12,15 @@
 </head>
 <body>
   <header class="bar">
-    <a class="brand" href="#" aria-label="OMNIA">
+    <a class="brand" href="#" aria-label="femeIA.Co">
       <svg class="reticle" viewBox="0 0 40 40" aria-hidden="true">
-        <circle cx="20" cy="20" r="15.5" fill="none" stroke="currentColor" stroke-width="3"/>
-        <line x1="20" y1="2" x2="20" y2="13" class="r-ax"/><line x1="20" y1="27" x2="20" y2="38" class="r-ax"/>
-        <line x1="2" y1="20" x2="13" y2="20" class="r-cor"/><line x1="27" y1="20" x2="38" y2="20" class="r-cor"/>
-        <circle cx="20" cy="20" r="2.6" class="r-sag"/>
+        <circle cx="20" cy="15.5" r="10.5" fill="none" stroke="currentColor" stroke-width="3"/>
+        <line x1="20" y1="2" x2="20" y2="10" class="r-ax"/>
+        <line x1="4" y1="15.5" x2="14.5" y2="15.5" class="r-cor"/><line x1="25.5" y1="15.5" x2="36" y2="15.5" class="r-cor"/>
+        <circle cx="20" cy="15.5" r="2.6" class="r-sag"/>
+        <line x1="20" y1="21" x2="20" y2="38" class="r-stem"/><line x1="13" y1="32" x2="27" y2="32" class="r-stem"/>
       </svg>
-      <span class="wordmark">OMNIA</span>
+      <span class="wordmark">femeIA<span class="tld">.Co</span></span>
     </a>
     <p class="local"><span class="led" aria-hidden="true"></span><span data-i18n="localBadge"></span></p>
     <div class="bar-actions">
@@ -97,16 +98,17 @@
 
   <footer class="foot">
     <p data-i18n="footer"></p>
-    <p><span data-i18n="author"></span> <span id="version"></span> <a href="https://github.com/ks-schumacher/omnIA.Co" rel="noopener">GitHub</a></p>
+    <p><span data-i18n="author"></span> <span id="version"></span> <a href="https://github.com/HeraldoMelloNeto/femeIA.Co" rel="noopener">GitHub</a></p>
   </footer>
 
   <dialog id="gate" aria-labelledby="gateTitle">
     <form method="dialog" id="gateForm" class="gate">
       <svg class="reticle big" viewBox="0 0 40 40" aria-hidden="true">
-        <circle cx="20" cy="20" r="15.5" fill="none" stroke="currentColor" stroke-width="3"/>
-        <line x1="20" y1="2" x2="20" y2="13" class="r-ax"/><line x1="20" y1="27" x2="20" y2="38" class="r-ax"/>
-        <line x1="2" y1="20" x2="13" y2="20" class="r-cor"/><line x1="27" y1="20" x2="38" y2="20" class="r-cor"/>
-        <circle cx="20" cy="20" r="2.6" class="r-sag"/>
+        <circle cx="20" cy="15.5" r="10.5" fill="none" stroke="currentColor" stroke-width="3"/>
+        <line x1="20" y1="2" x2="20" y2="10" class="r-ax"/>
+        <line x1="4" y1="15.5" x2="14.5" y2="15.5" class="r-cor"/><line x1="25.5" y1="15.5" x2="36" y2="15.5" class="r-cor"/>
+        <circle cx="20" cy="15.5" r="2.6" class="r-sag"/>
+        <line x1="20" y1="21" x2="20" y2="38" class="r-stem"/><line x1="13" y1="32" x2="27" y2="32" class="r-stem"/>
       </svg>
       <h2 id="gateTitle" data-i18n="gateTitle"></h2>
       <p data-i18n="gateText"></p>

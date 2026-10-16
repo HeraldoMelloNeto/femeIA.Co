@@ -18,12 +18,12 @@ fs.writeFileSync(`${out}/index.html`, html);
 copy('src/app/styles.css', `${out}/styles.css`);
 copy('src/app/favicon.svg', `${out}/favicon.svg`);
 const fonts = [
-  ['@fontsource/unbounded', 'unbounded-latin-500-normal.woff2'], ['@fontsource/unbounded', 'unbounded-latin-700-normal.woff2'],
+  ['@fontsource/fraunces', 'fraunces-latin-500-normal.woff2'], ['@fontsource/fraunces', 'fraunces-latin-700-normal.woff2'],
   ['@fontsource/atkinson-hyperlegible', 'atkinson-hyperlegible-latin-400-normal.woff2'], ['@fontsource/atkinson-hyperlegible', 'atkinson-hyperlegible-latin-700-normal.woff2'],
   ['@fontsource/atkinson-hyperlegible', 'atkinson-hyperlegible-latin-400-italic.woff2'], ['@fontsource/atkinson-hyperlegible-mono', 'atkinson-hyperlegible-mono-latin-400-normal.woff2'],
 ];
 for (const [pkg, f] of fonts) copy(`node_modules/${pkg}/files/${f}`, `${out}/fonts/${f}`);
-copy('node_modules/@fontsource/unbounded/LICENSE', `${out}/fonts/LICENSE-Unbounded-OFL.txt`);
+copy('node_modules/@fontsource/fraunces/LICENSE', `${out}/fonts/LICENSE-Fraunces-OFL.txt`);
 copy('node_modules/@fontsource/atkinson-hyperlegible/LICENSE', `${out}/fonts/LICENSE-AtkinsonHyperlegible-OFL.txt`);
 copy('node_modules/@niivue/dcm2niix/dist/dcm2niix.jpeg.wasm', `${out}/vendor/dcm2niix/dcm2niix.jpeg.wasm`);
 copy('node_modules/libarchive.js/dist/worker-bundle.js', `${out}/vendor/libarchive/worker-bundle.js`);

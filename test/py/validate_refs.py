@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Validation of OMNIA NIfTI->DICOM on real-world reference NIfTIs (dcm_qa datasets).
+"""Validation of femeIA.Co NIfTI->DICOM on real-world reference NIfTIs (dcm_qa datasets).
 
 For each reference NIfTI (+ BIDS sidecar, bval/bvec when present):
-  1. OMNIA converts it to DICOM (Node, same engine as the browser) and self-verifies voxel by voxel.
+  1. femeIA.Co converts it to DICOM (Node, same engine as the browser) and self-verifies voxel by voxel.
   2. The DICOM output is converted back with native dcm2niix (independent implementation).
   3. compare_nifti.py checks voxel-exact equality in world space and affine agreement.
   4. DWI: b-values must match exactly; b-vectors within 1e-4 (sign-aware).
@@ -15,7 +15,7 @@ import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA = sys.argv[1]
 OUT = sys.argv[2]
-work = tempfile.mkdtemp(prefix='omnia_val_')
+work = tempfile.mkdtemp(prefix='femeia_val_')
 
 def run(cmd, **kw):
     return subprocess.run(cmd, capture_output=True, text=True, **kw)
@@ -44,19 +44,19 @@ for idx, nii in enumerate(files):
     r = run(cmd)
     if r.returncode != 0:
         err = [l for l in r.stderr.splitlines() if 'Error' in l and 'at ' not in l]
-        rec['omnia'] = 'refused' if any('not supported' in l for l in err) else 'error'
+        rec['femeia'] = 'refused' if any('not supported' in l for l in err) else 'error'
         rec['error'] = (err or r.stderr.strip().splitlines() or ['?'])[0][:300]
-        results.append(rec); print(rec['file'], rec['omnia'].upper(), rec['error']); continue
+        results.append(rec); print(rec['file'], rec['femeia'].upper(), rec['error']); continue
     info = json.loads(r.stdout.strip().splitlines()[-1])
-    rec['omnia'] = 'ok'; rec['self_verify'] = info['verify']['ok']; rec['files'] = info['files']; rec['plane'] = info['plane']; rec['tilted'] = info['tilted']
+    rec['femeia'] = 'ok'; rec['self_verify'] = info['verify']['ok']; rec['files'] = info['files']; rec['plane'] = info['plane']; rec['tilted'] = info['tilted']
     rec['encoding'] = info['enc']
-    # V2: independent pydicom + nibabel voxel check (no OMNIA code, no dcm2niix)
+    # V2: independent pydicom + nibabel voxel check (no femeIA.Co code, no dcm2niix)
     v2 = run([sys.executable, os.path.join(ROOT, 'test/py/dicom_vs_nifti.py'), out, nii])
     try:
         v2j = json.loads(v2.stdout.strip().splitlines()[-1]); rec['independent_check'] = v2j['ok']; rec['independent_max_index_err'] = v2j['max_index_error']
     except Exception:
         rec['independent_check'] = False; rec['independent_error'] = v2.stderr[-300:]
-    # V2: independent pydicom + nibabel voxel check (no OMNIA code, no dcm2niix)
+    # V2: independent pydicom + nibabel voxel check (no femeIA.Co code, no dcm2niix)
     v2 = run([sys.executable, os.path.join(ROOT, 'test/py/dicom_vs_nifti.py'), out, nii])
     try:
         v2j = json.loads(v2.stdout.strip().splitlines()[-1]); rec['independent_check'] = v2j['ok']; rec['independent_max_index_err'] = v2j['max_index_error']
@@ -116,8 +116,8 @@ for idx, nii in enumerate(files):
     shutil.rmtree(out, ignore_errors=True); shutil.rmtree(back, ignore_errors=True)
 
 json.dump(results, open(OUT, 'w'), indent=1)
-conv = [r for r in results if r.get('omnia') == 'ok']
-print(f"\nTOTAL {len(results)} | converted {len(conv)} | refused {sum(r.get('omnia')=='refused' for r in results)} | errors {sum(r.get('omnia')=='error' for r in results)}")
+conv = [r for r in results if r.get('femeia') == 'ok']
+print(f"\nTOTAL {len(results)} | converted {len(conv)} | refused {sum(r.get('femeia')=='refused' for r in results)} | errors {sum(r.get('femeia')=='error' for r in results)}")
 print(f"self-check OK {sum(bool(r.get('self_verify')) for r in conv)} | independent pydicom check OK {sum(bool(r.get('independent_check')) for r in conv)}")
 print(f"dcm2niix round trip: ok {sum(r.get('roundtrip')=='ok' for r in conv)} | n/a-tilt {sum(r.get('roundtrip')=='n/a-tilt' for r in conv)} | FAIL {sum(r.get('roundtrip') not in ('ok','n/a-tilt') for r in conv)}")
 print(f"dciodvfy errors (files with any): {sum(bool(r.get('dciodvfy_errors')) for r in conv)}")

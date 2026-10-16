@@ -1,28 +1,29 @@
 <p align="center">
-  <img src="docs/img/omnia-mark.svg" width="72" height="72" alt="">
+  <img src="docs/img/femeia-mark.svg" width="72" height="72" alt="">
 </p>
 
-<h1 align="center">OMNIA</h1>
+<h1 align="center">femeIA.Co</h1>
 
 <p align="center"><b>NIfTI ⇄ DICOM, both ways, without a single voxel leaving your computer.</b><br>
 A converter for CT and MR that runs entirely in the browser, checks every voxel it writes, and handles batches of up to 100 exams.</p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-1F5FD6"></a>
-  <img alt="Runs in the browser" src="https://img.shields.io/badge/runs-100%25%20in%20the%20browser-1D7A57">
-  <img alt="No upload" src="https://img.shields.io/badge/images-never%20uploaded-0E1620">
+  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-A3155A"></a>
+  <img alt="Runs in the browser" src="https://img.shields.io/badge/runs-100%25%20in%20the%20browser-C2185B">
+  <img alt="No upload" src="https://img.shields.io/badge/images-never%20uploaded-3D1230">
 </p>
 
-<p align="center"><img src="docs/img/omnia-screenshot.png" width="820" alt="OMNIA interface: direction switch, settings and exam queue"></p>
+<p align="center"><img src="docs/img/femeia-screenshot.png" width="820" alt="femeIA.Co interface: direction switch, settings and exam queue"></p>
 
-<p align="center"><b>Use it online: <a href="https://omniaco.netlify.app">omniaco.netlify.app</a></b> · Chrome or Edge recommended</p>
+<p align="center"><b>Use it online: <a href="https://femeiaco.netlify.app">femeiaco.netlify.app</a></b> · Chrome or Edge recommended</p>
 
 <p align="center"><i>Author: <b>Klaus Schumacher, MD</b> · Contributor: <b>Dr. Heraldo Mello Neto</b></i><br>
+<i>The rose edition of <a href="https://github.com/ks-schumacher/omnIA.Co">OMNIA</a>: same engine, same guarantees, a new name and a new face.</i><br>
 <a href="#em-português">Leia em português ↓</a></p>
 
 ---
 
-## What OMNIA does
+## What femeIA.Co does
 
 | Direction | Input | Output |
 |---|---|---|
@@ -32,15 +33,15 @@ A converter for CT and MR that runs entirely in the browser, checks every voxel 
 - **You choose the direction.** Every decision is taken once, before the batch starts. No question ever interrupts a conversion.
 - **Batches of up to 100 exams**, one archive (or folder) per exam, each with its own progress track, result, checksums and visual check.
 - **Lossless by default.** Nothing is resampled or quantised silently. When something cannot be represented exactly, the exam is refused with a reason, or converted with the exact error you allowed and measured.
-- **Independent verification of every output.** OMNIA re-reads what it wrote through a separate code path and compares every voxel with the source.
+- **Independent verification of every output.** femeIA.Co re-reads what it wrote through a separate code path and compares every voxel with the source.
 - **De-identification** (DICOM PS3.15 Basic Profile) with a consistent pseudonym per patient across the batch, new UIDs, optional date shifting, and **face removal for head CT**.
 - **Private by construction.** Conversion happens in a Web Worker with WebAssembly. The page's Content Security Policy blocks any upload: the browser itself refuses to send image data anywhere.
 
-OMNIA is a research and teaching tool. It is not a medical device and is not intended for diagnosis.
+femeIA.Co is a research and teaching tool. It is not a medical device and is not intended for diagnosis.
 
-## Using OMNIA
+## Using femeIA.Co
 
-Open **https://omniaco.netlify.app** (Chrome or Edge for writing results straight into a folder), or run it on your own computer (see *Run it locally*).
+Open **https://femeiaco.netlify.app** (Chrome or Edge for writing results straight into a folder), or run it on your own computer (see *Run it locally*).
 
 1. **Choose the direction**: DICOM → NIfTI or NIfTI → DICOM.
 2. **Configure** (left panel). These are all the decisions of the batch:
@@ -57,9 +58,9 @@ Open **https://omniaco.netlify.app** (Chrome or Edge for writing results straigh
 DICOM → NIfTI with BIDS (default):
 
 ```
-OMNIA-0001_E01_BIDS.zip
-└── sub-OMNIA0001/ses-01/
-    ├── anat/sub-OMNIA0001_ses-01_acq-…_run-5_T1w.nii.gz (+ .json)
+FEMEIA-0001_E01_BIDS.zip
+└── sub-FEMEIA0001/ses-01/
+    ├── anat/sub-FEMEIA0001_ses-01_acq-…_run-5_T1w.nii.gz (+ .json)
     ├── dwi/ …_dwi.nii.gz, .bval, .bvec, .json
     └── func/ …_bold.nii.gz (+ .json)
 ```
@@ -67,15 +68,15 @@ OMNIA-0001_E01_BIDS.zip
 NIfTI → DICOM:
 
 ```
-OMNIA-0001_E01.zip
-└── OMNIA-0001_E01/
+FEMEIA-0001_E01.zip
+└── FEMEIA-0001_E01/
     ├── 001_T1_MPRAGE/IM0001.dcm …   (MR Image Storage)
     └── 002_SEG_lesion_seg/SEG_0001.dcm (Segmentation Storage, references series 001)
 ```
 
 ## How the conversion is guaranteed
 
-**NIfTI → DICOM (OMNIA's own engine)**
+**NIfTI → DICOM (femeIA.Co's own engine)**
 
 - *Geometry.* Slice positions and orientation come from the NIfTI affine (sform by default, qform on request), converted from RAS to DICOM LPS. Images are laid out in the conventional radiological orientation, and the same voxels are kept: nothing is resampled. In-plane shear, which DICOM cannot represent, is refused. Gantry-tilted grids are written exactly.
 - *Values.* Values are stored as 16-bit integers with Rescale Slope/Intercept only when this representation is exact (directly, on an integer lattice, or on a floating-point lattice checked voxel by voxel, using the very decimal strings a reader will see). Otherwise the exam is refused, unless you allowed quantisation; then the maximum error is measured and written to the report and to the DICOM header.
@@ -86,16 +87,16 @@ OMNIA-0001_E01.zip
 **DICOM → NIfTI (dcm2niix)**
 
 - Conversion uses [dcm2niix](https://github.com/rordenlab/dcm2niix) (Chris Rorden, BSD-2-Clause), compiled to WebAssembly. On the public test data, the browser build produces the same files as the native program (186/186 images and sidecars identical).
-- OMNIA then checks the result independently: every uncompressed classic DICOM image is located in the NIfTI written by dcm2niix and compared value by value; for enhanced multi-frame objects and compressed pixels, the position of every frame is checked. Anything that does not match is refused.
+- femeIA.Co then checks the result independently: every uncompressed classic DICOM image is located in the NIfTI written by dcm2niix and compared value by value; for enhanced multi-frame objects and compressed pixels, the position of every frame is checked. Anything that does not match is refused.
 - Irregular slice spacing is split into uniform blocks (lossless) by default. Gantry tilt is written with the exact sheared affine taken from the image positions, instead of an approximation.
 
 **Face removal (head CT)**
 
-OMNIA finds the intracranial volume (soft tissue enclosed by bone), builds its convex hull in the sagittal plane and places a cutting plane at 45° tangent to it, on the anterior-inferior side, with a 4 mm margin. Every voxel denser than air beyond the plane becomes air (−1000 HU). By construction the plane never crosses the intracranial volume. A frontal rendering before and after is shown for each exam; always look at it.
+femeIA.Co finds the intracranial volume (soft tissue enclosed by bone), builds its convex hull in the sagittal plane and places a cutting plane at 45° tangent to it, on the anterior-inferior side, with a 4 mm margin. Every voxel denser than air beyond the plane becomes air (−1000 HU). By construction the plane never crosses the intracranial volume. A frontal rendering before and after is shown for each exam; always look at it.
 
 ## Validation
 
-All numbers below come from scripts in this repository, run on public data that anyone can download (see *Reproduce*). Full results: [docs/VALIDATION.md](docs/VALIDATION.md).
+All numbers below come from scripts in this repository, run on public data that anyone can download (see *Reproduce*). The battery was run on OMNIA 1.0.0, whose conversion engine femeIA.Co uses unchanged (only names and the interface differ). Full results: [docs/VALIDATION.md](docs/VALIDATION.md).
 
 | Test | Data | Result |
 |---|---|---|
@@ -111,8 +112,8 @@ All numbers below come from scripts in this repository, run on public data that 
 
 ```bash
 npm ci                                   # dependencies (Node 20+)
-bash tools/fetch_test_data.sh ../omnia-data   # public test data, pinned commits
-bash tools/validate_all.sh ../omnia-data ../omnia-reports
+bash tools/fetch_test_data.sh ../femeia-data   # public test data, pinned commits
+bash tools/validate_all.sh ../femeia-data ../femeia-reports
 ```
 
 Requirements: Python 3 with `numpy nibabel pydicom scipy highdicom` (and `rars` to build the RAR test exam), native `dcm2niix` and `dciodvfy` (dicom3tools) on the PATH. `npm test` runs the unit tests alone.
@@ -121,22 +122,22 @@ Requirements: Python 3 with `numpy nibabel pydicom scipy highdicom` (and `rars` 
 
 - Images are read, converted and written by the browser. The Content Security Policy (`connect-src 'self'`) forbids requests to any other origin, and the only request made to the site itself is the access email.
 - The access email is the only personal data stored by the site (Netlify Blobs). It is used as a contact list for release notices; anyone can ask for deletion by replying to the code email.
-- ZIP files written by OMNIA carry no timestamps. Reports and the pseudonym map are only ever written to your computer.
-- De-identification follows the DICOM PS3.15 Basic Profile with the options shown in the interface; the profile and options used are recorded in each output (`DeidentificationMethod` in DICOM, `OMNIADeidentification` in the JSON sidecar). De-identification of free text is best effort: review descriptions before sharing data, and consider burned-in text in secondary captures (skipped by default).
+- ZIP files written by femeIA.Co carry no timestamps. Reports and the pseudonym map are only ever written to your computer.
+- De-identification follows the DICOM PS3.15 Basic Profile with the options shown in the interface; the profile and options used are recorded in each output (`DeidentificationMethod` in DICOM, `FemeIADeidentification` in the JSON sidecar). De-identification of free text is best effort: review descriptions before sharing data, and consider burned-in text in secondary captures (skipped by default).
 
 ## Known limits
 
 - RGB and complex NIfTI data are not converted to DICOM.
-- Mosaic series (Siemens, United Imaging) are converted by dcm2niix but cannot be checked voxel by voxel by OMNIA (their outputs are identical to native dcm2niix in the validation).
-- Compressed DICOM (JPEG, JPEG 2000, JPEG-LS, RLE) is decoded by dcm2niix; OMNIA's own voxel check covers uncompressed images.
+- Mosaic series (Siemens, United Imaging) are converted by dcm2niix but cannot be checked voxel by voxel by femeIA.Co (their outputs are identical to native dcm2niix in the validation).
+- Compressed DICOM (JPEG, JPEG 2000, JPEG-LS, RLE) is decoded by dcm2niix; femeIA.Co's own voxel check covers uncompressed images.
 - Face removal is available for CT only. Encrypted RAR archives are not supported (re-pack them as ZIP).
 - Writing directly to a folder needs the File System Access API (Chrome or Edge); other browsers download the results.
 
 ## Run it locally
 
 ```bash
-git clone https://github.com/ks-schumacher/omnIA.Co.git
-cd omnIA.Co
+git clone https://github.com/HeraldoMelloNeto/femeIA.Co.git
+cd femeIA.Co
 npm ci
 npm start          # builds into dist/ and serves http://localhost:8080 with the production security headers
 ```
@@ -174,21 +175,23 @@ tools/           data fetching, full validation, DICOM dictionary generator
 
 ## Licence and credits
 
-OMNIA is released under the [Apache License 2.0](LICENSE) © 2026 Klaus Schumacher, MD. It can be used, modified and distributed, including commercially, under the terms of the licence.
+femeIA.Co is released under the [Apache License 2.0](LICENSE) © 2026 Klaus Schumacher, MD. It can be used, modified and distributed, including commercially, under the terms of the licence.
 
-Third-party components keep their own licences (full texts in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)): dcm2niix (BSD-2-Clause) via @niivue/dcm2niix, with OpenJPEG (BSD-2-Clause) and CharLS (BSD-3-Clause); libarchive.js (MIT) with libarchive (BSD) and Comlink (Apache-2.0); fflate (MIT), @noble/hashes (MIT), Unbounded and Atkinson Hyperlegible fonts (SIL OFL 1.1). The DICOM dictionary is generated from pydicom (MIT). Test data: the dcm_qa collections by Chris Rorden and collaborators (BSD-2-Clause) and the niivue demo images (CT courtesy of Philips Medical).
+femeIA.Co is the rose edition of [OMNIA 1.0.0](https://github.com/ks-schumacher/omnIA.Co), by the same author: the conversion engine, the validation and the guarantees are OMNIA's, unchanged; the name, the typography and the colour scheme are new. Contributor: Dr. Heraldo Mello Neto.
 
-If OMNIA is useful in your work, please cite it ([CITATION.cff](CITATION.cff)).
+Third-party components keep their own licences (full texts in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)): dcm2niix (BSD-2-Clause) via @niivue/dcm2niix, with OpenJPEG (BSD-2-Clause) and CharLS (BSD-3-Clause); libarchive.js (MIT) with libarchive (BSD) and Comlink (Apache-2.0); fflate (MIT), @noble/hashes (MIT), Fraunces and Atkinson Hyperlegible fonts (SIL OFL 1.1). The DICOM dictionary is generated from pydicom (MIT). Test data: the dcm_qa collections by Chris Rorden and collaborators (BSD-2-Clause) and the niivue demo images (CT courtesy of Philips Medical).
+
+If femeIA.Co is useful in your work, please cite it ([CITATION.cff](CITATION.cff)).
 
 ---
 
 ## Em português
 
-**OMNIA converte NIfTI em DICOM e DICOM em NIfTI dentro do navegador, sem que nenhuma imagem saia do seu computador.** Atende TC e RM de qualquer região, lotes de até 100 exames, e confere cada voxel que grava.
+**femeIA.Co converte NIfTI em DICOM e DICOM em NIfTI dentro do navegador, sem que nenhuma imagem saia do seu computador.** Atende TC e RM de qualquer região, lotes de até 100 exames, e confere cada voxel que grava.
 
 ### O que faz
 
-- **DICOM → NIfTI**: exames em ZIP, RAR, 7z, TAR ou pastas (inclusive arquivos aninhados e DICOMDIR) viram NIfTI com sidecar JSON, opcionalmente em **BIDS**; DWI com `.bval`/`.bvec`. A conversão usa o dcm2niix compilado em WebAssembly, e o OMNIA confere depois cada imagem DICOM contra o NIfTI gerado.
+- **DICOM → NIfTI**: exames em ZIP, RAR, 7z, TAR ou pastas (inclusive arquivos aninhados e DICOMDIR) viram NIfTI com sidecar JSON, opcionalmente em **BIDS**; DWI com `.bval`/`.bvec`. A conversão usa o dcm2niix compilado em WebAssembly, e a femeIA.Co confere depois cada imagem DICOM contra o NIfTI gerado.
 - **NIfTI → DICOM**: volumes 3D, 4D e DWI viram séries **CT Image** ou **MR Image** clássicas; mapas de rótulos viram **DICOM SEG**, que referencia a série convertida no mesmo exame.
 - **Você decide o sentido**, e todas as decisões são tomadas antes de começar. Nenhuma pergunta interrompe o lote.
 - **Sem perdas por padrão**: nada é reamostrado nem quantizado em silêncio. Se algo não puder ser representado exatamente, o exame é recusado com o motivo, ou convertido com o erro máximo que você autorizou, medido e registrado.
@@ -197,7 +200,7 @@ If OMNIA is useful in your work, please cite it ([CITATION.cff](CITATION.cff)).
 
 ### Como usar
 
-Abra **https://omniaco.netlify.app** (Chrome ou Edge, para gravar os resultados direto numa pasta) ou rode no seu computador (veja abaixo).
+Abra **https://femeiaco.netlify.app** (Chrome ou Edge, para gravar os resultados direto numa pasta) ou rode no seu computador (veja abaixo).
 
 1. Escolha o sentido da conversão.
 2. Configure privacidade, formato e políticas no painel 1.
@@ -222,7 +225,7 @@ Os números completos estão em [docs/VALIDATION.md](docs/VALIDATION.md), e qual
 ### Rodar localmente
 
 ```bash
-git clone https://github.com/ks-schumacher/omnIA.Co.git && cd omnIA.Co
+git clone https://github.com/HeraldoMelloNeto/femeIA.Co.git && cd femeIA.Co
 npm ci
 npm start   # http://localhost:8080
 ```
@@ -230,3 +233,5 @@ npm start   # http://localhost:8080
 ### Licença e autoria
 
 Apache License 2.0 © 2026 **Klaus Schumacher, MD**. Contribuidor: **Dr. Heraldo Mello Neto**. Uso comercial permitido nos termos da licença. Ferramenta de pesquisa e ensino, sem finalidade diagnóstica.
+
+A femeIA.Co é a edição rosa do [OMNIA 1.0.0](https://github.com/ks-schumacher/omnIA.Co), do mesmo autor: motor de conversão, validação e garantias são os do OMNIA, sem alterações; mudam o nome, a tipografia e as cores.

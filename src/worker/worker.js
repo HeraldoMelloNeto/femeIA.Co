@@ -1,4 +1,4 @@
-// OMNIA processing worker: runs entirely inside the browser tab (no network access is needed or used
+// femeIA.Co processing worker: runs entirely inside the browser tab (no network access is needed or used
 // for exam data). One exam at a time; the identity context (pseudonyms, UID map) spans the batch.
 import Dcm2niixModule from '../../node_modules/@niivue/dcm2niix/dist/dcm2niix.jpeg.js';
 import { Archive } from 'libarchive.js';
@@ -8,7 +8,7 @@ import { setLibarchiveAdapter, makeLibarchiveAdapter } from '../engine/archive.j
 import { processExam } from '../engine/exam.js';
 import { IdentityContext } from '../engine/anon.js';
 import { ZipWriter } from '../engine/zip.js';
-import { OMNIA_VERSION } from '../engine/uid.js';
+import { FEMEIA_VERSION } from '../engine/uid.js';
 
 let runner = null;
 let idctx = null;
@@ -64,7 +64,7 @@ function parseCsv(text) {
 self.onmessage = async (ev) => {
   const m = ev.data;
   try {
-    if (m.type === 'init') { await init(m.base); self.postMessage({ type: 'ready', version: OMNIA_VERSION }); return; }
+    if (m.type === 'init') { await init(m.base); self.postMessage({ type: 'ready', version: FEMEIA_VERSION }); return; }
     if (m.type === 'batch') {
       idctx = new IdentityContext(m.settings);
       csvIndex = m.csvText ? parseCsv(m.csvText) : null;

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Download the public test data used by the OMNIA validation battery, pinned to the exact commits used
+# Download the public test data used by the femeIA.Co validation battery, pinned to the exact commits used
 # for the numbers in docs/VALIDATION.md. No patient data is stored in this repository.
 #   dcm_qa*: Chris Rorden's dcm2niix regression datasets (BSD-2-Clause), https://github.com/neurolabusc
 #   niivue-demo-images: CT_Philips.nii.gz (head CT, courtesy of Philips Medical) for the defacing test

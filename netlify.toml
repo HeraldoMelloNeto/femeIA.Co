@@ -1,4 +1,4 @@
-# Netlify configuration for OMNIA: a static site (dist/) plus two small functions that handle the
+# Netlify configuration for femeIA.Co: a static site (dist/) plus two small functions that handle the
 # optional access e-mail. Exam data never reaches these functions; the CSP below forbids the page
 # from sending data to any origin other than this site.
 [build]
